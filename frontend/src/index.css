@@ -1,0 +1,14 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', 'Roboto', 'Arial', sans-serif;
+  background: #F5F5DC;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
+}
