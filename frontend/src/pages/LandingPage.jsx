@@ -1,11 +1,44 @@
 // frontend/src/pages/LandingPage.js
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container, Box, Grid, Card, CardContent, IconButton } from '@mui/material';
-import { WhatsApp, Instagram, YouTube, Agriculture, DataUsage, Chat, Storefront } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, Button, Container, Box, Grid, Card, CardContent, IconButton, Stack } from '@mui/material';
+import { WhatsApp, Instagram, YouTube, Agriculture, DataUsage, Chat, Storefront, QrCode, Link as LinkIcon, Share } from '@mui/icons-material';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const [copyStatus, setCopyStatus] = useState('');
+
+  const shareUrl = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return window.location.origin;
+  }, []);
+
+  const qrCodeUrl = useMemo(() => {
+    if (!shareUrl) return '';
+    return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(shareUrl)}`;
+  }, [shareUrl]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyStatus('Imebandikwa!');
+      setTimeout(() => setCopyStatus(''), 2000);
+    } catch (err) {
+      setCopyStatus('Kosa wakati wa kunakili');
+    }
+  };
+
+  const shareApp = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'AgriData Smarts', text: 'Fungua AgriData Smarts kwenye simu yako', url: shareUrl });
+      } catch (err) {
+        console.warn('Share cancelled', err);
+      }
+    } else {
+      copyLink();
+    }
+  };
 
   return (
     <Box>
@@ -38,6 +71,41 @@ function LandingPage() {
           </Container>
         </Box>
       </Box>
+
+      {/* Phone Access Section */}
+      <Container sx={{ py: 6 }}>
+        <Card sx={{ p: 3, boxShadow: 3 }}>
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography variant="h4" fontWeight="bold" gutterBottom>
+                Fungua app kwenye simu yako
+              </Typography>
+              <Typography sx={{ mb: 2 }}>
+                Piga kisawazisho kwa kutumia QR code hii ili kufungua AgriData Smarts kwenye simu yako bila kuandika IP manually.
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mt: 2 }}>
+                <Button variant="contained" startIcon={<Share />} onClick={shareApp}>
+                  Shiriki Link
+                </Button>
+                <Button variant="outlined" startIcon={<LinkIcon />} onClick={copyLink}>
+                  Nakili Link
+                </Button>
+              </Stack>
+              {copyStatus ? (
+                <Typography variant="body2" sx={{ mt: 1, color: 'success.main' }}>
+                  {copyStatus}
+                </Typography>
+              ) : null}
+              <Typography variant="caption" display="block" sx={{ mt: 3 }}>
+                URL: {shareUrl}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
+              <Box component="img" src={qrCodeUrl} alt="QR code to open AgriData Smarts" sx={{ width: 220, height: 220, mx: 'auto', borderRadius: 2, boxShadow: 3 }} />
+            </Grid>
+          </Grid>
+        </Card>
+      </Container>
 
       {/* Features Section */}
       <Container sx={{ py: 8 }}>

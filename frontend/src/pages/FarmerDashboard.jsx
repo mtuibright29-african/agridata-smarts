@@ -9,6 +9,7 @@ import {
   Menu, Dashboard, Storefront, Chat, BarChart, Logout, Agriculture, 
   Notifications, Person, WhatsApp 
 } from '@mui/icons-material';
+import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 import axios from 'axios';
 
 const drawerWidth = 240;
@@ -37,6 +38,15 @@ function FarmerDashboard() {
     localStorage.removeItem('userRole');
     navigate('/');
   };
+
+  const farmTrendData = [
+    { name: 'Wiki 1', moisture: 68 },
+    { name: 'Wiki 2', moisture: 72 },
+    { name: 'Wiki 3', moisture: 78 },
+    { name: 'Wiki 4', moisture: 82 },
+    { name: 'Wiki 5', moisture: 80 },
+    { name: 'Wiki 6', moisture: 84 }
+  ];
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
@@ -136,8 +146,25 @@ function FarmerDashboard() {
               </Card>
             </Grid>
             
+            {/* Moisture Trend */}
+            <Grid item xs={12} md={6}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Trend ya Umwagiliaji</Typography>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={farmTrendData} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis domain={[60, 90]} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="moisture" stroke="#1976d2" strokeWidth={3} dot={{ r: 4 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </Grid>
             {/* Recent Activity */}
-            <Grid item xs={12}>
+            <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
                   <Typography variant="h6">Shughuli za Hivi Karibuni</Typography>

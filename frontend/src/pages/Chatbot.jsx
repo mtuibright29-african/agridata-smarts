@@ -1,12 +1,13 @@
 // frontend/src/pages/Chatbot.js
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, TextField, Button, Paper, List, ListItem, ListItemText, Avatar, Typography, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Box, TextField, Button, Paper, List, ListItem, ListItemText, Avatar, Typography, AppBar, Toolbar, IconButton, Card, CardContent, Divider, Stack, Chip } from '@mui/material';
 import { Send, ArrowBack, WhatsApp, SmartToy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const API_BASE_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:5000`;
+const socket = io(API_BASE_URL);
 
 function Chatbot() {
   const navigate = useNavigate();
@@ -15,9 +16,91 @@ function Chatbot() {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const messagesEndRef = useRef(null);
 
+  const quickCommands = [
+    'hali ya hewa',
+    'bei',
+    'mafunzo',
+    'msaada'
+  ];
+
+  const getSummaryText = (analysis) => {
+    if (!analysis) return null;
+    if (analysis.summary) return analysis.summary;
+    if (analysis.raw?.description?.captions?.[0]?.text) return analysis.raw.description.captions[0].text;
+    return 'Hakuna uchambuzi wa kina uliopatikana.';
+  };
+
+  const renderAnalysisCard = (analysis, imageUrl, previewUrl) => {
+    if (!analysis) return null;
+
+    const summary = getSummaryText(analysis);
+    const providerName = analysis.provider === 'openai' ? 'OpenAI' : analysis.provider === 'azure' ? 'Azure Computer Vision' : 'AI';
+    const caption = analysis.raw?.description?.captions?.[0]?.text;
+    const tags = analysis.raw?.tags?.map((tag) => tag.name) || [];
+    const healthScore = analysis.fallbackHealthScore;
+    const recommendations = analysis.fallbackRecommendations || [];
+
+    return (
+      <Card variant="outlined" sx={{ mt: 1, bgcolor: '#F1F8E9' }}>
+        <CardContent>
+          <Typography variant="subtitle2" color="textSecondary">Uchambuzi wa Picha - {providerName}</Typography>
+          {imageUrl || previewUrl ? (
+            <Box component="img" src={previewUrl || `${API_BASE_URL}${imageUrl}`} alt="Picha ya mmea" sx={{ width: '100%', height: 'auto', borderRadius: 2, mt: 1, mb: 1 }} />
+          ) : null}
+          <Typography variant="body2" sx={{ mb: 1 }}>{summary}</Typography>
+          {caption ? (
+            <Typography variant="caption" display="block" sx={{ mb: 1 }}>Maelezo ya picha: {caption}</Typography>
+          ) : null}
+          {tags.length > 0 ? (
+            <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
+              {tags.slice(0, 6).map((tag) => <Chip key={tag} label={tag} size="small" />)}
+            </Stack>
+          ) : null}
+          {typeof healthScore === 'number' ? (
+            <Typography variant="body2" sx={{ mt: 1, fontWeight: 700 }}>Afya ya mmea: {healthScore}%</Typography>
+          ) : null}
+          {recommendations.length > 0 ? (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="subtitle2">Mapendekezo ya AI:</Typography>
+              <List dense>
+                {recommendations.map((item, index) => (
+                  <ListItem key={index} sx={{ py: 0, px: 0 }}>
+                    <ListItemText primary={`• ${item}`} />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          ) : null}
+        </CardContent>
+      </Card>
+    );
+  };
+
   useEffect(() => {
+    const token = localStorage.getItem('token');
+    const fetchHistory = async () => {
+      if (!token) return;
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/chatbot/history`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const historyItems = response.data.map((item) => ({
+          text: item.content,
+          sender: item.direction === 'user' || item.direction === 'inbound' ? 'user' : 'bot',
+          timestamp: item.createdAt
+        }));
+
+        setMessages((prev) => [prev[0], ...historyItems]);
+      } catch (error) {
+        console.warn('Unable to load chat history', error);
+      }
+    };
+
+    fetchHistory();
     scrollToBottom();
     
     socket.on('receive_message', (data) => {
@@ -32,25 +115,26 @@ function Chatbot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    
-    const userMessage = { text: input, sender: 'user', timestamp: new Date() };
+  const sendMessage = async (overrideMessage) => {
+    const messageText = overrideMessage ?? input;
+    if (!messageText.trim()) return;
+
+    const userMessage = { text: messageText, sender: 'user', timestamp: new Date() };
     setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    if (!overrideMessage) setInput('');
     setIsTyping(true);
-    
+
     try {
-      const response = await axios.post('http://localhost:5000/api/chatbot/message', {
-        message: input,
+      const response = await axios.post(`${API_BASE_URL}/api/chatbot/message`, {
+        message: messageText,
         phoneNumber: localStorage.getItem('phoneNumber')
       });
-      
+
       setTimeout(() => {
         setMessages(prev => [...prev, { text: response.data.reply, sender: 'bot', timestamp: new Date() }]);
         setIsTyping(false);
       }, 1000);
-      
+
     } catch (error) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, { text: "Samahani, kuna tatizo la mtandao. Jaribu tena.", sender: 'bot', timestamp: new Date() }]);
@@ -82,12 +166,21 @@ function Chatbot() {
       <Paper sx={{ flex: 1, overflow: 'auto', p: 2, m: 2, bgcolor: '#fff' }}>
         <List>
           {messages.map((msg, idx) => (
-            <ListItem key={idx} sx={{ justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
+            <ListItem
+              key={idx}
+              sx={{
+                justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                alignItems: 'flex-start'
+              }}
+            >
               <Avatar sx={{ bgcolor: msg.sender === 'user' ? '#FF9800' : '#2E7D32', mr: msg.sender === 'user' ? 0 : 1, ml: msg.sender === 'user' ? 1 : 0 }}>
                 {msg.sender === 'user' ? '🧑' : '🤖'}
               </Avatar>
               <Paper sx={{ p: 1.5, maxWidth: '70%', bgcolor: msg.sender === 'user' ? '#FF9800' : '#E8F5E9', color: msg.sender === 'user' ? 'white' : 'black' }}>
-                <ListItemText primary={msg.text} secondary={new Date(msg.timestamp).toLocaleTimeString()} />
+                <Stack spacing={1}>
+                  <ListItemText primary={msg.text} secondary={new Date(msg.timestamp).toLocaleTimeString()} />
+                  {msg.analysis && renderAnalysisCard(msg.analysis, msg.imageUrl, msg.previewUrl)}
+                </Stack>
               </Paper>
             </ListItem>
           ))}
@@ -114,11 +207,18 @@ function Chatbot() {
             onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
             sx={{ bgcolor: 'white' }}
           />
-          <Button variant="contained" color="primary" onClick={sendMessage}>
+          <Button variant="contained" color="primary" onClick={() => sendMessage()}>
             <Send />
           </Button>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+        <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 2 }}>
+          {quickCommands.map((command) => (
+            <Button key={command} variant="outlined" size="small" onClick={() => sendMessage(command)}>
+              {command}
+            </Button>
+          ))}
+        </Stack>
+        <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             accept="image/*"
             style={{ display: 'none' }}
@@ -127,13 +227,14 @@ function Chatbot() {
             onChange={async (e) => {
               const file = e.target.files[0];
               if (!file) return;
+              const preview = URL.createObjectURL(file);
               const form = new FormData();
               form.append('image', file);
               form.append('phoneNumber', localStorage.getItem('phoneNumber') || '');
               setMessages(prev => [...prev, { text: 'Pakia picha...', sender: 'user', timestamp: new Date() }]);
               try {
-                const res = await axios.post('http://localhost:5000/api/chatbot/image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
-                setMessages(prev => [...prev, { text: res.data.reply || 'Samahani, hatukuweza kuchanganua picha.', sender: 'bot', timestamp: new Date() }]);
+                const res = await axios.post(`${API_BASE_URL}/api/chatbot/image`, form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                setMessages(prev => [...prev, { text: res.data.reply || 'Samahani, hatukuweza kuchanganua picha.', sender: 'bot', timestamp: new Date(), analysis: res.data.analysis, imageUrl: res.data.url, previewUrl: preview }]);
               } catch (err) {
                 setMessages(prev => [...prev, { text: 'Kosa la mtandao wakati wa kuchapisha picha.', sender: 'bot', timestamp: new Date() }]);
               }
@@ -145,7 +246,7 @@ function Chatbot() {
           <Button variant="text" onClick={openWhatsApp} startIcon={<WhatsApp />}>Wasiliana kwa WhatsApp</Button>
         </Box>
         <Typography variant="caption" sx={{ display: 'block', mt: 1, textAlign: 'center' }}>
-          Amri zilizopendekezwa: "hali ya hewa", "bei", "chunguza <picha>", "mazao yangu", "mafunzo", "msaada"
+          Amri zilizopendekezwa: "hali ya hewa", "bei", "chunguza &lt;picha&gt;", "mazao yangu", "mafunzo", "msaada"
         </Typography>
       </Paper>
     </Box>
