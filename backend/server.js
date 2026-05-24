@@ -52,10 +52,8 @@ io.on('connection', (socket) => {
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/agridata', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/agridata')
+  .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB error:', err));
 
 const PORT = process.env.PORT || 5000;

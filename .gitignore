@@ -28,3 +28,4 @@ uploads/
 # Editor folders
 .vscode/
 .idea/
+\n# Local npm cache\n.npm_cache/

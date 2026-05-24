@@ -1,9 +1,8 @@
 // frontend/src/pages/LandingPage.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { AppBar, Toolbar, Typography, Button, Container, Box, Grid, Card, CardContent, IconButton } from '@mui/material';
-import { WhatsApp, Instagram, YouTube, TikTok, Agriculture, DataUsage, Chat, Storefront } from '@mui/icons-material';
+import { WhatsApp, Instagram, YouTube, Agriculture, DataUsage, Chat, Storefront } from '@mui/icons-material';
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ function LandingPage() {
 
       {/* Hero Section */}
       <Box sx={{ bgcolor: '#2E7D32', color: 'white', py: 8, textAlign: 'center' }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <Box>
           <Container>
             <Typography variant="h2" gutterBottom fontWeight="bold">
               Data Driven. Smarter Farming. Better Future.
@@ -37,7 +36,7 @@ function LandingPage() {
               Anza Sasa - Bure!
             </Button>
           </Container>
-        </motion.div>
+        </Box>
       </Box>
 
       {/* Features Section */}
@@ -90,9 +89,7 @@ function LandingPage() {
           <IconButton component="span" sx={{ color: '#FF0000' }}>
             <YouTube fontSize="large" />
           </IconButton>
-          <IconButton component="span" sx={{ color: '#000000' }}>
-            <TikTok fontSize="large" />
-          </IconButton>
+          
         </Box>
         <Typography variant="body2" sx={{ mt: 2 }}>
           Wasiliana nasi: WhatsApp +255 093 653 378 | Email: agridatasmart@gmail.com
