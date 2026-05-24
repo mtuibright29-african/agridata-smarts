@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Box, Container, TextField, Button, Typography, Paper, Alert } from '@mui/material';
+import { Box, Container, TextField, Button, Typography, Paper, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Checkbox, FormControlLabel, Link as MuiLink } from '@mui/material';
 import axios from 'axios';
 
 function Register({ setIsAuthenticated, setUserRole }) {
@@ -9,11 +9,14 @@ function Register({ setIsAuthenticated, setUserRole }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [accepted, setAccepted] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
     try {
+      if (!accepted) return setError('Tafadhali kukubali sera ya faragha kabla ya kujiandikisha.');
       const response = await axios.post('/api/auth/register', { name, phoneNumber, password });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
@@ -59,12 +62,30 @@ function Register({ setIsAuthenticated, setUserRole }) {
             <Button type="submit" variant="contained" color="primary" fullWidth>
               Jisajili
             </Button>
+            <Button variant="text" onClick={() => setConsentOpen(true)} sx={{ mt: 1 }}>
+              Soma sera ya faragha
+            </Button>
+            <FormControlLabel
+              control={<Checkbox checked={accepted} onChange={(e) => setAccepted(e.target.checked)} />}
+              label={<span>Ninakubali <MuiLink component="button" onClick={() => setConsentOpen(true)}>sera ya faragha</MuiLink></span>} />
           </Box>
           <Typography variant="body2" sx={{ mt: 2 }}>
             Tayari una akaunti? <Link to="/login">Ingia hapa</Link>
           </Typography>
         </Paper>
       </Container>
+      <Dialog open={consentOpen} onClose={() => setConsentOpen(false)} fullWidth>
+        <DialogTitle>Sera ya Faragha - AgriData Smarts</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" paragraph>
+            Tunakusanya data za shamba (sensa, picha, ripoti za wakulima) ili kutoa ushauri na kusaidia upatikanaji wa huduma kama mikopo na masoko. Data yako ni yako; tutaitumia kwa huduma ulizoziomba na kwa makusanyo yaliyokubaliwa. Tutahifadhi usiri na kutoa chaguo la kufuta data yako kwa mawasiliano.
+          </Typography>
+          <Typography variant="caption">Kwa maswali zaidi tuma barua pepe: agridatasmart@gmail.com</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConsentOpen(false)}>Funga</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

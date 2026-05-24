@@ -17,6 +17,16 @@ const io = socketIo(server, {
   }
 });
 
+// expose io to routes via app.locals
+app.set('io', io);
+
+// Ensure uploads folder exists and serve it
+const fs = require('fs');
+const path = require('path');
+const uploadsDir = path.resolve(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use('/uploads', express.static(uploadsDir));
+
 // Middleware
 app.use(cors());
 app.use(express.json());
