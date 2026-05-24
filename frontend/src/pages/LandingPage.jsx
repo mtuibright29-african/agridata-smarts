@@ -76,6 +76,39 @@ function LandingPage() {
         </Grid>
       </Container>
 
+      {/* Data Collection & Trust Section */}
+      <Container sx={{ py: 6, bgcolor: '#fff9f0', mt: 4 }}> 
+        <Typography variant="h4" textAlign="center" gutterBottom fontWeight="bold">
+          Jinsi Tunavyokusanya Data
+        </Typography>
+        <Typography textAlign="center" sx={{ mb: 2 }}>
+          Tunakusanya data kwa njia nyingi: sensa za udongo, vichunguzi vya hewa, picha za drone, ripoti za wakulima na soko la bei kwa wakati halisi. Data zako zinatumika kutoa ushauri, kuongeza thamani ya mazao, na kusaidia upatikanaji wa mikopo kwa wakulima.
+        </Typography>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Sensa & IoT</Typography>
+              <Typography variant="body2">Sensa za udongo na vituo vya hali ya hewa vinatoa data za wakati halisi.</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Picha & Satellite</Typography>
+              <Typography variant="body2">Drone na satellite hutoa ramani za afya ya mimea na ufuatiliaji wa mashamba.</Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ p: 2 }}>
+              <Typography variant="h6">Ripoti za Wakulima</Typography>
+              <Typography variant="body2">Tunahimiza wakulima kutuma ripoti kupitia app, WhatsApp, au extension officers.</Typography>
+            </Card>
+          </Grid>
+        </Grid>
+        <Typography variant="caption" display="block" textAlign="center" sx={{ mt: 2 }}>
+          Tunahakikisha uwazi na faragha: data yako ni yako — tunaweza kuitumia tu kwa huduma ulizokubali. Sera kamili ya faragha inapatikana kwa kujiandikisha.
+        </Typography>
+      </Container>
+
       {/* Social Media Links */}
       <Box sx={{ bgcolor: '#1B5E20', color: 'white', py: 4, textAlign: 'center' }}>
         <Typography variant="h6" gutterBottom>Tuungane Kwenye Mitandao ya Kijamii</Typography>

@@ -78,3 +78,15 @@ This workspace has been prepared for git tracking. To publish the project to Git
 - Connect the marketplace listings to real buyer workflows
 - Harden authentication, validation, and production deployment
 - Add tests for backend routes and frontend components
+
+## Improved context (from product conversations)
+
+This project was developed following detailed stakeholder conversations about building an agricultural data business in Tanzania focused on pineapple farmers (Chalinze). Key takeaways integrated into the app:
+
+- Support for Kiswahili-first UX and WhatsApp integration for low-connectivity access.
+- Chatbot commands: `hali ya hewa`, `bei`, `chunguza <picha>`, `mazao yangu`, `mafunzo`, `msaada` are supported in the chatbot UI.
+- Data collection model: support for sensors, drone/satellite imagery, and farmer-reported data; explicit consent and farmer data ownership are emphasized in the UI.
+- Roadmap: start with advisory and marketplace modules, then add financial services (credit scoring, insurance) and carbon/market intelligence later.
+- Partnerships: suggested integration points with local players (MazaoHub, KijaniSpace) and APIs (Zernio for social posting) are documented for future work.
+
+These context-driven improvements are reflected in the landing page, chatbot, and seed data scripts in this repository.

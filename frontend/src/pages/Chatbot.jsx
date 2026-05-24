@@ -11,7 +11,7 @@ const socket = io('http://localhost:5000');
 function Chatbot() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([
-    { text: "Habari! Mimi ni AgriData Smart Bot. Ninaweza kukusaidia na: Hali ya hewa, Bei za mananasi, Ushauri wa kilimo, au Chunguza picha. Tuma 'msaada' kwa orodha kamili.", sender: 'bot', timestamp: new Date() }
+    { text: "Habari! Mimi ni AgriData Smart Bot. Ninaweza kukusaidia kwa amri zifuatazo: 'hali ya hewa', 'bei', 'chunguza <picha>', 'mazao yangu', 'mafunzo', 'msaada'. Tuma 'msaada' ili kuunganishwa na extension officer. Kwa kushiriki data, unakubali matumizi ya data yako kwa huduma (angalia sera).", sender: 'bot', timestamp: new Date() }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -104,7 +104,7 @@ function Chatbot() {
       </Paper>
       
       <Paper sx={{ p: 2, m: 2 }}>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -118,8 +118,34 @@ function Chatbot() {
             <Send />
           </Button>
         </Box>
+        <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
+          <input
+            accept="image/*"
+            style={{ display: 'none' }}
+            id="chat-image-upload"
+            type="file"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const form = new FormData();
+              form.append('image', file);
+              form.append('phoneNumber', localStorage.getItem('phoneNumber') || '');
+              setMessages(prev => [...prev, { text: 'Pakia picha...', sender: 'user', timestamp: new Date() }]);
+              try {
+                const res = await axios.post('http://localhost:5000/api/chatbot/image', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                setMessages(prev => [...prev, { text: res.data.reply || 'Samahani, hatukuweza kuchanganua picha.', sender: 'bot', timestamp: new Date() }]);
+              } catch (err) {
+                setMessages(prev => [...prev, { text: 'Kosa la mtandao wakati wa kuchapisha picha.', sender: 'bot', timestamp: new Date() }]);
+              }
+            }}
+          />
+          <label htmlFor="chat-image-upload">
+            <Button variant="outlined" component="span">Tuma Picha</Button>
+          </label>
+          <Button variant="text" onClick={openWhatsApp} startIcon={<WhatsApp />}>Wasiliana kwa WhatsApp</Button>
+        </Box>
         <Typography variant="caption" sx={{ display: 'block', mt: 1, textAlign: 'center' }}>
-          Jaribu: "hali ya hewa", "bei", "chunguza", "mafunzo", au "msaada"
+          Amri zilizopendekezwa: "hali ya hewa", "bei", "chunguza <picha>", "mazao yangu", "mafunzo", "msaada"
         </Typography>
       </Paper>
     </Box>
