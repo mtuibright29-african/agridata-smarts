@@ -70,7 +70,7 @@ This workspace has been prepared for git tracking. To publish the project to Git
 
 - The frontend is configured to proxy `/api` requests to `http://localhost:5000` via Vite.
 - Ensure MongoDB is running before starting the backend.
-- The chatbot endpoint currently returns static Swahili responses and can be extended with AI or WhatsApp integration.
+- The chatbot endpoints support text commands and image uploads. There are endpoints for text (`POST /api/chatbot/message`), image upload (`POST /api/chatbot/image`), WhatsApp send (`POST /api/chatbot/send-whatsapp`) and a Twilio-compatible webhook (`POST /api/chatbot/webhook/whatsapp`). Configure Twilio env vars to enable WhatsApp sending.
 
 ## Next steps
 
