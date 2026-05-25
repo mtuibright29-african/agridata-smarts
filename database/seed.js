@@ -1,16 +1,16 @@
 const path = require('path');
-const mongoose = require('mongoose');
+const mongoose = require(path.resolve(__dirname, '../backend/node_modules/mongoose'));
 const dotenv = require('dotenv');
 
-// Load environment from backend/.env.txt
-dotenv.config({ path: path.resolve(__dirname, '../backend/.env.txt') });
+// Load environment from backend/.env
+dotenv.config({ path: path.resolve(__dirname, '../backend/.env') });
 
 const User = require(path.resolve(__dirname, '../backend/models/User'));
 const FarmData = require(path.resolve(__dirname, '../backend/models/FarmData'));
 
 async function seed() {
   try {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/agridata';
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/agridata';
     await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 30000 });
 
     console.log('Connected to MongoDB', mongoUri);

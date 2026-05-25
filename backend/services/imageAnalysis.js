@@ -52,7 +52,7 @@ const extractText = (response) => {
 
 const analyzeWithOpenAI = async (filePath) => {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'your_openai_api_key_here') {
     throw new Error('OPENAI_API_KEY is not configured');
   }
 
@@ -60,21 +60,21 @@ const analyzeWithOpenAI = async (filePath) => {
   const dataUrl = getDataUrl(filePath);
   const prompt = 'Changanua picha ya mmea wa kilimo cha mananasi na toa ripoti fupi kwa Kiswahili kuhusu afya ya mmea, dalili za ugonjwa, na mapendekezo ya hatua za kuchukua.';
 
-  const response = await client.responses.create({
-    model: 'gpt-4.1-mini',
-    input: [
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
       {
         role: 'user',
         content: [
-          { type: 'input_text', text: prompt },
-          { type: 'input_image', image_url: dataUrl }
+          { type: 'text', text: prompt },
+          { type: 'image_url', image_url: { url: dataUrl } }
         ]
       }
     ],
-    max_output_tokens: 350
+    max_tokens: 350
   });
 
-  const summary = extractText(response);
+  const summary = response.choices?.[0]?.message?.content;
   return {
     provider: 'openai',
     summary: summary || 'AI haikuweza kutoa uchambuzi wa picha.',
@@ -112,18 +112,23 @@ const analyzeWithAzure = async (filePath) => {
 
 const verifyOpenAIConnection = async () => {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'your_openai_api_key_here') {
     throw new Error('OPENAI_API_KEY is not configured');
   }
 
   const client = new OpenAI({ apiKey });
-  const response = await client.responses.create({
-    model: 'gpt-4.1-mini',
-    input: 'Please respond with a single word: OK.',
-    max_output_tokens: 10
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: 'user',
+        content: 'Please respond with a single word: OK.'
+      }
+    ],
+    max_tokens: 10
   });
 
-  const summary = extractText(response) || 'No response text returned';
+  const summary = response.choices?.[0]?.message?.content || 'No response text returned';
   return {
     provider: 'openai',
     status: 'connected',

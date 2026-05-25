@@ -1,0 +1,24 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: agridata-smarts-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false   # set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false   # set manually in Render dashboard
+      - key: OPENAI_API_KEY
+        sync: false   # optional
+      - key: AZURE_COMPUTER_VISION_ENDPOINT
+        sync: false   # optional
+      - key: AZURE_COMPUTER_VISION_KEY
+        sync: false   # optional
+    plan: free
