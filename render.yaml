@@ -15,8 +15,11 @@ services:
         sync: false   # set manually in Render dashboard
       - key: JWT_SECRET
         sync: false   # set manually in Render dashboard
+      - key: GEMINI_API_KEY
+        sync: false   # optional (free-tier AI crop analysis)
       - key: OPENAI_API_KEY
         sync: false   # optional
+
       - key: AZURE_COMPUTER_VISION_ENDPOINT
         sync: false   # optional
       - key: AZURE_COMPUTER_VISION_KEY

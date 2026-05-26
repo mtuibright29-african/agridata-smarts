@@ -157,18 +157,84 @@ const verifyAzureConnection = async () => {
   };
 };
 
+const analyzeWithGemini = async (filePath) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+    throw new Error('GEMINI_API_KEY is not configured');
+  }
+
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeType = extensionToMime[ext] || 'image/jpeg';
+  const imageBuffer = fs.readFileSync(filePath);
+  const base64Data = imageBuffer.toString('base64');
+
+  const prompt = 'Changanua picha ya mmea wa kilimo cha mananasi na toa ripoti fupi kwa Kiswahili kuhusu afya ya mmea, dalili za ugonjwa, na mapendekezo ya hatua za kuchukua.';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+  const response = await axios.post(url, {
+    contents: [{
+      parts: [
+        { text: prompt },
+        {
+          inlineData: {
+            mimeType: mimeType,
+            data: base64Data
+          }
+        }
+      ]
+    }]
+  }, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const summary = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  return {
+    provider: 'gemini',
+    summary: summary || 'AI haikuweza kutoa uchambuzi wa picha kwa kutumia Gemini.',
+    raw: response.data
+  };
+};
+
+const verifyGeminiConnection = async () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+    throw new Error('GEMINI_API_KEY is not configured');
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const response = await axios.post(url, {
+    contents: [{
+      parts: [{ text: 'Please respond with a single word: OK.' }]
+    }]
+  }, {
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  const summary = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response text returned';
+  return {
+    provider: 'gemini',
+    status: 'connected',
+    summary: summary.trim()
+  };
+};
+
 const analyzeImage = async (filePath) => {
+  if (process.env.GEMINI_API_KEY) {
+    return analyzeWithGemini(filePath);
+  }
   if (process.env.OPENAI_API_KEY) {
     return analyzeWithOpenAI(filePath);
   }
   if (process.env.AZURE_COMPUTER_VISION_ENDPOINT && process.env.AZURE_COMPUTER_VISION_KEY) {
     return analyzeWithAzure(filePath);
   }
-  throw new Error('No image analysis provider is configured. Set OPENAI_API_KEY or AZURE_COMPUTER_VISION_ENDPOINT/AZURE_COMPUTER_VISION_KEY.');
+  throw new Error('No image analysis provider is configured. Set GEMINI_API_KEY, OPENAI_API_KEY or AZURE_COMPUTER_VISION_ENDPOINT/AZURE_COMPUTER_VISION_KEY.');
 };
 
 module.exports = {
   analyzeImage,
   verifyOpenAIConnection,
-  verifyAzureConnection
+  verifyAzureConnection,
+  verifyGeminiConnection
 };
+

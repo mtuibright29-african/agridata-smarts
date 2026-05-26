@@ -6,7 +6,7 @@ const fs = require('fs');
 const axios = require('axios');
 const { verifyToken } = require('../middleware/auth');
 const ChatMessage = require('../models/ChatMessage');
-const { analyzeImage, verifyOpenAIConnection, verifyAzureConnection } = require('../services/imageAnalysis');
+const { analyzeImage, verifyOpenAIConnection, verifyAzureConnection, verifyGeminiConnection } = require('../services/imageAnalysis');
 const router = express.Router();
 
 // multer setup for image uploads
@@ -132,6 +132,11 @@ router.post('/image', upload.single('image'), async (req, res) => {
 // Provider connectivity test endpoint
 router.get('/image-test', async (req, res) => {
   try {
+    if (process.env.GEMINI_API_KEY) {
+      const result = await verifyGeminiConnection();
+      return res.json({ ok: true, provider: 'gemini', result });
+    }
+
     if (process.env.OPENAI_API_KEY) {
       const result = await verifyOpenAIConnection();
       return res.json({ ok: true, provider: 'openai', result });
@@ -142,7 +147,7 @@ router.get('/image-test', async (req, res) => {
       return res.json({ ok: true, provider: 'azure', result });
     }
 
-    return res.status(400).json({ ok: false, message: 'No image analysis provider configured. Set OPENAI_API_KEY or AZURE_COMPUTER_VISION_ENDPOINT/AZURE_COMPUTER_VISION_KEY.' });
+    return res.status(400).json({ ok: false, message: 'No image analysis provider configured. Set GEMINI_API_KEY, OPENAI_API_KEY or AZURE_COMPUTER_VISION_ENDPOINT/AZURE_COMPUTER_VISION_KEY.' });
   } catch (error) {
     res.status(500).json({ ok: false, message: error.message });
   }
