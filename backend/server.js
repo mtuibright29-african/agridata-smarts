@@ -28,16 +28,24 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 app.use('/uploads', express.static(uploadsDir));
 
 // Middleware
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://agridata-smarts.netlify.app,http://localhost:3000,http://127.0.0.1:3000')
+  .split(',')
+  .map(origin => origin.trim());
+
 const corsOptions = {
-  origin: [
-    'https://agridata-smarts.netlify.app',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200
 };
+
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 app.use(express.json());
