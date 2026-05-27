@@ -86,9 +86,18 @@ const maskedMongoUri = mongoUri.replace(/(mongodb\+srv:\/\/[^:]+:)([^@]+)(@.+)/,
 console.log('Using MongoDB URI:', maskedMongoUri);
 console.log('Allowed origins:', allowedOrigins.join(', '));
 
-mongoose.connect(mongoUri)
+mongoose.connect(mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000
+})
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB error:', err));
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
