@@ -61,8 +61,8 @@ AgriData Smarts is a web application for smart pineapple farming in Tanzania wit
 #### 1.5 Get Connection String
 - Click **Connect** on your cluster
 - Select **Drivers** → **Node.js**
-- Copy connection string: `mongodb+srv://agridata_user:PASSWORD@cluster.mongodb.net/agridata?retryWrites=true&w=majority`
-- Replace `PASSWORD` with your actual password
+- Copy connection string: `mongodb+srv://mtuibright29_db_user:<db_password>@cluster0.tzo2iwj.mongodb.net/agridata?retryWrites=true&w=majority`
+- Replace `<db_password>` with your actual password from Atlas
 
 ---
 

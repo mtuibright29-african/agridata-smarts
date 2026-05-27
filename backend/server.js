@@ -81,7 +81,12 @@ io.on('connection', (socket) => {
 });
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/agridata')
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/agridata';
+const maskedMongoUri = mongoUri.replace(/(mongodb\+srv:\/\/[^:]+:)([^@]+)(@.+)/, '$1***$3');
+console.log('Using MongoDB URI:', maskedMongoUri);
+console.log('Allowed origins:', allowedOrigins.join(', '));
+
+mongoose.connect(mongoUri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB error:', err));
 
