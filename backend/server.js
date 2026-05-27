@@ -106,8 +106,6 @@ console.log('Using MongoDB URI:', maskedMongoUri);
 console.log('Allowed origins:', allowedOrigins.join(', '));
 
 mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000
 })
