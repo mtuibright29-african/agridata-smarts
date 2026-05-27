@@ -17,7 +17,7 @@ function Register({ setIsAuthenticated, setUserRole }) {
     setError('');
     try {
       if (!accepted) return setError('Tafadhali kukubali sera ya faragha kabla ya kujiandikisha.');
-      const response = await axios.post('/api/auth/register', { name, phoneNumber, password });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`{ name, phoneNumber, password });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', user.role);
