@@ -59,6 +59,25 @@ const chatbotRoutes = require('./routes/chatbot');
 const socialRoutes = require('./routes/social');
 const adminRoutes = require('./routes/admin');
 
+// Health checks
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'AgriData Smarts backend is running',
+    dbState: mongoose.connection.readyState,
+    dbConnected: mongoose.connection.readyState === 1
+  });
+});
+
+app.get('/health', (req, res) => {
+  const state = mongoose.connection.readyState;
+  res.json({
+    status: 'ok',
+    dbState: state,
+    dbConnected: state === 1
+  });
+});
+
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/farmers', farmerRoutes);
