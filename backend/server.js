@@ -105,6 +105,21 @@ const maskedMongoUri = mongoUri.replace(/(mongodb\+srv:\/\/[^:]+:)([^@]+)(@.+)/,
 console.log('Using MongoDB URI:', maskedMongoUri);
 console.log('Allowed origins:', allowedOrigins.join(', '));
 
+// Lightweight DB test endpoint to help diagnose network/auth issues from the running service
+app.get('/health/dbtest', async (req, res) => {
+  const { MongoClient } = require('mongodb');
+  const client = new MongoClient(mongoUri, { serverSelectionTimeoutMS: 5000, socketTimeoutMS: 5000 });
+  try {
+    await client.connect();
+    // ping to ensure server responds
+    await client.db().admin().ping();
+    await client.close();
+    return res.json({ ok: true, message: 'MongoDB reachable' });
+  } catch (err) {
+    return res.status(500).json({ ok: false, name: err.name, message: err.message });
+  }
+});
+
 mongoose.connect(mongoUri, {
   serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000
