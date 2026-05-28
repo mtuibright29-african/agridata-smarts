@@ -45,11 +45,22 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving
+// Hash password before saving - FIXED
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  try {
+    // Only hash if password is modified
+    if (!this.isModified('password')) {
+      return next();
+    }
+    
+    // Hash the password with 10 rounds
+    const hashedPassword = await bcrypt.hash(this.password, 10);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    console.error('Password hashing error:', error);
+    next(error);
+  }
 });
 
 module.exports = mongoose.model('User', UserSchema);
