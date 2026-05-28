@@ -7,10 +7,16 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware - CORS configuration with environment variable support
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://agridata-smarts.netlify.app,http://localhost:3000').split(',').map(origin => origin.trim());
+
 app.use(cors({
-  origin: ['https://agridata-smarts.netlify.app', 'http://localhost:3000']
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 // ✅ THIS IS THE CRITICAL PART - Mount your routes
@@ -52,4 +58,5 @@ mongoose.connect(process.env.MONGODB_URI)
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`CORS allowed origins: ${allowedOrigins.join(', ')}`);
 });
