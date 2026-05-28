@@ -13,7 +13,7 @@ function Login({ setIsAuthenticated, setUserRole }) {
     event.preventDefault();
     setError('');
     try {
-      const response = await axios.post('/api/auth/login', { phoneNumber, password });
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, { phoneNumber, password });
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', user.role);
