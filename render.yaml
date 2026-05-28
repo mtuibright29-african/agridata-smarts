@@ -16,7 +16,7 @@ services:
       - key: ALLOWED_ORIGINS
         sync: https://agridata-smarts.netlify.app   # set manually in Render dashboard
       - key: JWT_SECRET
-        sync: false   # set manually in Render dashboard
+        sync: agridata-smartsprojectbrightmtui  # set manually in Render dashboard
       - key: GEMINI_API_KEY
         sync: AIzaSyBty2bss50uFQnXHfPDGLUELSv-23ANVao   # optional (free-tier AI crop analysis)
       - key: OPENAI_API_KEY
