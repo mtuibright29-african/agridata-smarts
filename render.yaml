@@ -12,13 +12,13 @@ services:
       - key: PORT
         value: 10000
       - key: MONGODB_URI
-        sync: mongodb+srv://mtuibright29_db_user:2063africa@cluster0.tzo2iwj.mongodb.net/agridata?appName=Cluster0   # set manually in Render dashboard
+        sync: false # set manually in Render dashboard
       - key: ALLOWED_ORIGINS
         sync: https://agridata-smarts.netlify.app   # set manually in Render dashboard
       - key: JWT_SECRET
-        sync: agridata-smartsprojectbrightmtui  # set manually in Render dashboard
+        sync: false  # set manually in Render dashboard
       - key: GEMINI_API_KEY
-        sync: AIzaSyBty2bss50uFQnXHfPDGLUELSv-23ANVao   # optional (free-tier AI crop analysis)
+        sync: false  # optional (free-tier AI crop analysis)
       - key: OPENAI_API_KEY
         sync: false   # optional
 
