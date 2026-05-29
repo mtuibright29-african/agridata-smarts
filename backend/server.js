@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 // Middleware - CORS configuration with environment variable support
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://agridata-smarts.netlify.app,http://localhost:3000').split(',').map(origin => origin.trim());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://agridata-smarts-frontend.pxxl.app,http://localhost:3000').split(',').map(origin => origin.trim());
 
 app.use(cors({
   origin: allowedOrigins,
